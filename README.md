@@ -8,18 +8,19 @@ This script allows you to forward messages from specified Telegram channels to a
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [Custom Filter Configuration](#custom-filter-configuration)
 - [License](#license)
 
 ## Features
-- Forward messages from multiple channels to a group.
-- Filter out tags and preserve new lines in messages.
-- Automatically append URLs from message entities.
-- Handle media messages (photos and documents).
-- filters to add on lines 76 - 78
+- Forward messages from multiple channels to a group. 📬
+- Filter out tags and preserve new lines in messages. ✂️
+- Automatically append URLs from message entities. 🔗
+- Handle media messages (photos and documents). 🖼️📄
+- Custom filters to add on lines 76 - 78. 🔍
 
 ## Requirements
-- Python 3.7 or higher
-- Telethon library
+- Python 3.7 or higher 🐍
+- Telethon library 📦
 
 ## Installation
 1. Clone the repository:
@@ -37,7 +38,7 @@ This script allows you to forward messages from specified Telegram channels to a
 Before running the script, you need to configure it with your Telegram API credentials and the channels you want to monitor.
 
 1. **API Credentials**: 
-   - Create a new application on [my.telegram.org](https://my.telegram.org) to get your `api_id` and `api_hash`.
+   - Create a new application on [my.telegram.org](https://my.telegram.org) to get your `api_id` and `api_hash`. 🔑
    - Replace the following values in `bot.py`:
      ```python
      api_id = 'YOUR_API_ID'  # Your API ID
@@ -46,7 +47,7 @@ Before running the script, you need to configure it with your Telegram API crede
      ```
 
 2. **Group and Channels**:
-   - Set the `group_id` to the ID of the group where you want to forward messages.
+   - Set the `group_id` to the ID of the group where you want to forward messages. 🏷️
    - Update the `source_chats` list with the IDs or usernames of the channels you want to monitor:
      ```python
      source_chats = [CHANNEL_ID_1, CHANNEL_ID_2, 'username_or_id']
@@ -58,7 +59,6 @@ Before running the script, you need to configure it with your Telegram API crede
    python bot.py
    ```
 
-2. The script will start running and will forward messages from the specified channels to the designated group.
+2. The script will start running and will forward messages from the specified channels to the designated group. 🚀
 
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
