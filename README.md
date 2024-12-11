@@ -1,6 +1,6 @@
 # Telegram Forwarder Script 📡
 
-This script allows you to forward messages from specified Telegram channels to a designated group. It uses the Telethon library to interact with the Telegram API.
+This Python script allows you to forward messages from specified Telegram channels to a designated group. It uses the Telethon library to interact with the Telegram API.
 
 ## Table of Contents
 - [Features](#features)
