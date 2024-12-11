@@ -28,7 +28,7 @@ Follow these steps to install and set up the Telegram Forwarder Script:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/telegram-forwarder.git
+   git clone https://github.com/BlackNnja/Telegram-Forward-Script.git
    cd telegram-forwarder
    ```
 
