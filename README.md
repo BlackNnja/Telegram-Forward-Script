@@ -69,3 +69,5 @@ This section explains how you can customize the message filtering in the Telegra
 ### 1. Removing Specific Tags
 
 By default, the script removes all tags (words starting with `@`) from the messages. You can customize this behavior to exclude specific usernames or tags.
+
+change the username to filter on line 76
