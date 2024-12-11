@@ -15,6 +15,7 @@ This script allows you to forward messages from specified Telegram channels to a
 - Filter out tags and preserve new lines in messages.
 - Automatically append URLs from message entities.
 - Handle media messages (photos and documents).
+- filters to add on lines 76 - 78
 
 ## Requirements
 - Python 3.7 or higher
