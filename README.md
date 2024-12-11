@@ -1,129 +1,94 @@
+# 📡 Telegram Forwarder Script
 
-# Telegram Forwarder Script 📡
+This is a Telegram message forwarder script that forwards messages from specific Telegram groups or channels to another group. The script supports filtering out specific text, words, usernames, and links from forwarded messages.
 
-This Python script allows you to forward messages from specified Telegram channels to a designated group. It uses the Telethon library to interact with the Telegram API.
-
-When Bots Starts it will forward the Last Message from each Group / Channel , And after that it will Monitor And forward Automatically the messages to the desired Group \ Channel .
-
-## Table of Contents
+## 📋 Table of Contents
 - [Features](#features)
 - [Requirements](#requirements)
-- [Installation](#installation)
 - [Configuration](#configuration)
+- [How It Works](#how-it-works)
+- [Setup Instructions](#setup-instructions)
 - [Usage](#usage)
-- [Custom Filter Configuration](#custom-filter-configuration)
+- [Contributing](#contributing)
 - [License](#license)
 
-## Features
-- Forward messages from multiple channels to a group. 📬
-- Filter out tags (mentions) and preserve new lines in messages. ✂️
-- Automatically append URLs from message entities. 🔗
-- Handle media messages (photos and documents). 🖼️📄
-- Custom filters to remove unwanted words, usernames, and links. 🔍
+## 🚀 Features
+- Forward messages from multiple source channels/groups to a target group.
+- Filter out unwanted words, usernames, and links.
+- Supports media forwarding (photos, documents).
+- Handles users, chats, groups, and topics.
 
-## Requirements
-- Python 3.7 or higher 🐍
-- Telethon library 📦
+## 🛠️ Requirements
+- Python 3.7 or higher
+- [Telethon](https://github.com/LonamiWebs/Telethon) library
+- Telegram API credentials (API_ID, API_HASH, and phone number)
 
-## Installation
-Follow these steps to install and set up the Telegram Forwarder Script:
+## ⚙️ Configuration
+Before running the script, you need to configure it with your own values. Open `bot.py` and modify the following variables:
 
-1. **Clone the repository**:
+
+replace these with your own values :
+
+api_id = 'YOUR_API_ID' # Your API ID (🔑 Get it from https://my.telegram.org)
+
+api_hash = 'YOUR_API_HASH' # Your API Hash (🔑 Get it from https://my.telegram.org)
+
+phone_number = 'YOUR_PHONE_NUMBER' # Your phone number (e.g. '+123456789') 📞
+Group and channels to monitor
+
+
+group_id = 'TARGET_GROUP_ID' # Group ID to forward messages to (string format)
+
+source_channels = ['SOURCE_CHANNEL_ID_1', 'SOURCE_CHANNEL_ID_2'] # List of source channel IDs (string format)
+
+
+Filter configuration:
+
+
+FILTER_CONFIG = {
+'words': ['unwantedword1', 'unwantedword2'], # List of words to filter out
+'usernames': ['@username1', '@username2'], # List of usernames to filter out
+'links': False, # Set to True if you want to remove URLs (set to False if not)
+}
+
+
+## 🔍 How It Works
+1. The script uses the Telethon library to interact with the Telegram API.
+2. It forwards messages from specified source channels/groups to a target group.
+3. Filters are applied to remove unwanted content based on the configuration.
+4. Media files are forwarded along with the messages when applicable.
+
+## 📝 Setup Instructions
+1. **Clone the repository:**
    ```bash
-   git clone https://github.com/BlackNnja/Telegram-Forward-Script.git
+   git clone https://github.com/yourusername/telegram-forwarder.git
    cd telegram-forwarder
    ```
 
-2. **Install the required packages**:
+2. **Install the required packages:**
    ```bash
    pip install telethon
    ```
 
-## Configuration
-Before running the script, you need to configure it with your Telegram API credentials and the channels you want to monitor.
+3. **Configure the script:**
+   - Open `bot.py` and set your API credentials, target group ID, source channel IDs, and filter settings.
 
-1. **API Credentials**: 
-   - Create a new application on [my.telegram.org](https://my.telegram.org) to get your `api_id` and `api_hash`. 🔑
-   - Replace the following values in `bot.py`:
-     ```python
-     api_id = 'YOUR_API_ID'  # Your API ID
-     api_hash = 'YOUR_API_HASH'  # Your API Hash
-     phone_number = 'YOUR_PHONE_NUMBER'  # Your phone number
-     ```
-
-2. **Group and Channels**:
-   - Set the `group_id` to the ID of the group where you want to forward messages. 🏷️
-   - Update the `source_chats` list with the IDs or usernames of the channels you want to monitor:
-     ```python
-     source_chats = [CHANNEL_ID_1, CHANNEL_ID_2, 'username_or_id']
-     ```
-
-## Usage
-1. Run the script:
+4. **Run the script:**
    ```bash
    python bot.py
    ```
 
-2. The script will start running and will forward messages from the specified channels to the designated group. 🚀
+## 📦 Usage
+- The script will start running and will forward messages from the specified source channels/groups to the target group.
+- You can monitor the console for any errors or logs.
 
-## Customizing Message Filtering ✂️
+## 🤝 Contributing
+Contributions are welcome! If you have suggestions or improvements, feel free to open an issue or submit a pull request.
 
-This section explains how you can customize the message filtering in the Telegram Forwarder Script to suit your needs. You can modify the script to remove specific tags, replace usernames, and filter out messages based on certain criteria.
-
-### 1. Removing Specific Tags (Mentions)
-
-By default, the script removes all tags (mentions) from the messages. You can customize this behavior to exclude specific usernames or tags. Here's how you can modify the filtering settings:
-
-1. **Modify the `FILTER_CONFIG` dictionary**:
-   In the script, you will find the `FILTER_CONFIG` dictionary. It allows you to customize the filtering process. To filter out specific usernames or words, update the dictionary as follows:
-
-   ```python
-   FILTER_CONFIG = {
-       'words': ['spam', 'advertisement'],  # Words to filter out
-       'usernames': ['@username1', '@username2'],  # Usernames to filter out
-       'links': True  # Set to True to remove URLs from messages
-   }
-   ```
-
-2. **Filter Words**:
-   To remove specific words from messages, add them to the `words` list:
-   ```python
-   FILTER_CONFIG['words'] = ['unwantedword1', 'unwantedword2']
-   ```
-
-3. **Filter Usernames**:
-   To remove mentions of specific usernames, add them to the `usernames` list:
-   ```python
-   FILTER_CONFIG['usernames'] = ['@username1', '@username2']
-   ```
-
-4. **Remove Links (URLs)**:
-   To remove URLs from the messages, set the `links` value to `True`:
-   ```python
-   FILTER_CONFIG['links'] = True  # Set this to False to keep links
-   ```
-
-### 2. Example of Custom Filter Configuration
-
-```python
-FILTER_CONFIG = {
-    'words': ['spam', 'advertisement'],    # Words to filter out
-    'usernames': ['@user1', '@bot'],        # Usernames to filter out
-    'links': True                           # Set to True to remove URLs
-}
-```
-
-### 3. Where to Apply Filters
-
-The `apply_filters` function in the script is responsible for applying the configured filters to each message before it is forwarded. The filters work as follows:
-- **Words**: Filters out unwanted words from the message text.
-- **Usernames**: Filters out mentions of specific usernames.
-- **Links**: Filters out URLs using regular expressions.
-
-## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+## 📄 License
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
 
-If you have any questions or need help, feel free to open an issue on the GitHub repository. Happy forwarding! 🎉
-```
+Thank you for using the Telegram Forwarder Script! If you have any questions or need assistance, feel free to reach out. Happy forwarding! 🎉
+
