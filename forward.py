@@ -48,6 +48,7 @@ FILTER_CONFIG = {
     'links': False,  # Set to True if you want to remove URLs (set to False if not)
 }
 
+
 # Create the Telegram client
 client = TelegramClient('session_name', api_id, api_hash)
 
@@ -80,7 +81,7 @@ def apply_filters(message_text: str):
 # Message Forwarding Section 📬
 # ============================
 
-async def forward_last_messages():
+async def forward_last_messages(num_messages):
     """
     This function forwards the last messages from the specified source chats to the target group.
     It applies the configured filters and handles media files properly.
@@ -90,8 +91,8 @@ async def forward_last_messages():
             # Verify if the channel exists and get the entity
             entity = await client.get_entity(channel)
 
-            # Now, retrieve the last message
-            async for message in client.iter_messages(entity, limit=1):
+            # Now, retrieve the last messages
+            async for message in client.iter_messages(entity, limit=num_messages):
                 caption = message.message
 
                 # Apply filters to the caption text
@@ -119,7 +120,6 @@ async def forward_last_messages():
             print(f"Error retrieving messages from channel {channel}: {e}")
         except Exception as e:
             print(f"Error with channel {channel}: {e}")
-
 
 # ============================
 # Event Handlers Section ⚙️
@@ -170,7 +170,11 @@ async def main():
     Starts the message forwarding process by calling the function that forwards
     the last messages from the specified source chats.
     """
-    await forward_last_messages()
+    # Prompt user for the number of messages to forward (max 10)
+    num_messages = int(input("Enter the number of last messages to forward from each group (max 10): "))
+    num_messages = min(num_messages, 10)  # Ensure it does not exceed 10
+
+    await forward_last_messages(num_messages)
 
 client.loop.run_until_complete(main())
 client.run_until_disconnected()
