@@ -73,7 +73,7 @@ async def handler(event):
             if hasattr(entity, 'url'):
                 message += f" {entity.url}"
 
-    message = message.replace("@****Israel2", "🇮🇱")
+    message = message.replace("@termuxisrael2", "@bitsofgoldnews")         # Filters u can add or change
 
     if any(text.lower() in message.lower() for text in ["@termuxisrael2", "@bitsofgoldnews"]):
         return
