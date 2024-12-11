@@ -1,3 +1,4 @@
+
 # Telegram Forwarder Script 📡
 
 This Python script allows you to forward messages from specified Telegram channels to a designated group. It uses the Telethon library to interact with the Telegram API.
@@ -13,23 +14,25 @@ This Python script allows you to forward messages from specified Telegram channe
 
 ## Features
 - Forward messages from multiple channels to a group. 📬
-- Filter out tags and preserve new lines in messages. ✂️
+- Filter out tags (mentions) and preserve new lines in messages. ✂️
 - Automatically append URLs from message entities. 🔗
 - Handle media messages (photos and documents). 🖼️📄
-- Custom filters to add on lines 76 - 78. 🔍
+- Custom filters to remove unwanted words, usernames, and links. 🔍
 
 ## Requirements
 - Python 3.7 or higher 🐍
 - Telethon library 📦
 
 ## Installation
-1. Clone the repository:
+Follow these steps to install and set up the Telegram Forwarder Script:
+
+1. **Clone the repository**:
    ```bash
    git clone https://github.com/yourusername/telegram-forwarder.git
    cd telegram-forwarder
    ```
 
-2. Install the required packages:
+2. **Install the required packages**:
    ```bash
    pip install telethon
    ```
@@ -61,18 +64,64 @@ Before running the script, you need to configure it with your Telegram API crede
 
 2. The script will start running and will forward messages from the specified channels to the designated group. 🚀
 
-
 ## Customizing Message Filtering ✂️
 
 This section explains how you can customize the message filtering in the Telegram Forwarder Script to suit your needs. You can modify the script to remove specific tags, replace usernames, and filter out messages based on certain criteria.
 
-### 1. Removing Specific Tags
+### 1. Removing Specific Tags (Mentions)
 
-By default, the script removes all tags (words starting with `@`) from the messages. You can customize this behavior to exclude specific usernames or tags.
+By default, the script removes all tags (mentions) from the messages. You can customize this behavior to exclude specific usernames or tags. Here's how you can modify the filtering settings:
 
-change the username to filter on line 76
+1. **Modify the `FILTER_CONFIG` dictionary**:
+   In the script, you will find the `FILTER_CONFIG` dictionary. It allows you to customize the filtering process. To filter out specific usernames or words, update the dictionary as follows:
 
+   ```python
+   FILTER_CONFIG = {
+       'words': ['spam', 'advertisement'],  # Words to filter out
+       'usernames': ['@username1', '@username2'],  # Usernames to filter out
+       'links': True  # Set to True to remove URLs from messages
+   }
+   ```
 
-#בוט מעביר אוטמוטי
-#טלגרם בוט
+2. **Filter Words**:
+   To remove specific words from messages, add them to the `words` list:
+   ```python
+   FILTER_CONFIG['words'] = ['unwantedword1', 'unwantedword2']
+   ```
 
+3. **Filter Usernames**:
+   To remove mentions of specific usernames, add them to the `usernames` list:
+   ```python
+   FILTER_CONFIG['usernames'] = ['@username1', '@username2']
+   ```
+
+4. **Remove Links (URLs)**:
+   To remove URLs from the messages, set the `links` value to `True`:
+   ```python
+   FILTER_CONFIG['links'] = True  # Set this to False to keep links
+   ```
+
+### 2. Example of Custom Filter Configuration
+
+```python
+FILTER_CONFIG = {
+    'words': ['spam', 'advertisement'],    # Words to filter out
+    'usernames': ['@user1', '@bot'],        # Usernames to filter out
+    'links': True                           # Set to True to remove URLs
+}
+```
+
+### 3. Where to Apply Filters
+
+The `apply_filters` function in the script is responsible for applying the configured filters to each message before it is forwarded. The filters work as follows:
+- **Words**: Filters out unwanted words from the message text.
+- **Usernames**: Filters out mentions of specific usernames.
+- **Links**: Filters out URLs using regular expressions.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+If you have any questions or need help, feel free to open an issue on the GitHub repository. Happy forwarding! 🎉
+```
