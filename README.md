@@ -3,6 +3,8 @@
 
 This Python script allows you to forward messages from specified Telegram channels to a designated group. It uses the Telethon library to interact with the Telegram API.
 
+When Bots Starts it will forward the Last Message from each Group / Channel , And after that it will Monitor And forward Automatically the messages to the desired Group \ Channel .
+
 ## Table of Contents
 - [Features](#features)
 - [Requirements](#requirements)
