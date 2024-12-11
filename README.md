@@ -62,3 +62,10 @@ Before running the script, you need to configure it with your Telegram API crede
 2. The script will start running and will forward messages from the specified channels to the designated group. 🚀
 
 
+## Customizing Message Filtering ✂️
+
+This section explains how you can customize the message filtering in the Telegram Forwarder Script to suit your needs. You can modify the script to remove specific tags, replace usernames, and filter out messages based on certain criteria.
+
+### 1. Removing Specific Tags
+
+By default, the script removes all tags (words starting with `@`) from the messages. You can customize this behavior to exclude specific usernames or tags.
