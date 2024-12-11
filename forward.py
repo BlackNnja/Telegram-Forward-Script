@@ -71,11 +71,9 @@ async def handler(event):
     if event.message.entities:
         for entity in event.message.entities:
             if hasattr(entity, 'url'):
-                message += f" {entity.url}"
+                message += f" {entity.url}"     
 
-    message = message.replace("@termuxisrael2", "@bitsofgoldnews")         # Filters u can add or change
-
-    if any(text.lower() in message.lower() for text in ["@termuxisrael2", "@bitsofgoldnews"]):
+    if any(text.lower() in message.lower() for text in ["@termuxisrael2", "@bitsofgoldnews"]): # Filters u can add or change
         return
 
     caption = message
