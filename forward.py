@@ -167,14 +167,18 @@ client.start(phone_number)
 
 async def main():
     """
-    Starts the message forwarding process by calling the function that forwards
-    the last messages from the specified source chats.
+    Starts the message forwarding process and keeps the bot running
     """
     # Prompt user for the number of messages to forward (max 10)
     num_messages = int(input("Enter the number of last messages to forward from each group (max 10): "))
     num_messages = min(num_messages, 10)  # Ensure it does not exceed 10
 
+    # Forward initial messages
     await forward_last_messages(num_messages)
+    
+    print("Bot is now listening for new messages...")
+    # Keep the bot running
+    await client.run_until_disconnected()
 
+# Run the main function
 client.loop.run_until_complete(main())
-client.run_until_disconnected()
