@@ -48,10 +48,9 @@ source_channels = ['SOURCE_CHANNEL_ID_1', 'SOURCE_CHANNEL_ID_2']  # List of sour
 
 ### Filter Configuration
 ```python
+# Filter configuration:
 FILTER_CONFIG = {
-    'words': ['unwantedword1', 'unwantedword2'],  # List of words to filter out
-    'usernames': ['@username1', '@username2'],    # List of usernames to filter out
-    'links': False,  # Set to True if you want to remove URLs (set to False if not)
+    'keywords': ['@username1', 'Any Text',],    # List of usernames to filter out
 }
 ```
 
