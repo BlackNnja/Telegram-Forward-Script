@@ -43,142 +43,199 @@ source_chats = ['SOURCE_CHAT_1', 'SOURCE_CHAT_2', 'SOURCE_CHAT_3', 'username_or_
 
 # Filter configuration:
 FILTER_CONFIG = {
-    'words': ['unwantedword1', 'unwantedword2'],  # List of words to filter out
-    'usernames': ['@username1', '@username2'],    # List of usernames to filter out
-    'links': False,  # Set to True if you want to remove URLs (set to False if not)
+    'keywords': ['@username1', 'Any Text',],    # List of usernames to filter out
 }
-
+# Max message length (Telegram's maximum for text messages)
+MAX_MESSAGE_LENGTH = 4096  # Characters limit for Telegram messages
+MAX_CAPTION_LENGTH = 1024  # Telegram's maximum caption length for media messages
 
 # Create the Telegram client
 client = TelegramClient('session_name', api_id, api_hash)
 
 # ============================
-# Message Forwarding Section 📬
+# Utility Functions
 # ============================
 
-def apply_filters(message_text: str):
+def apply_filters(message_text: str, entities=None):
     """
-    Apply the configured filters to the message text (words, usernames, links).
+    Apply the configured filters to the message text and embedded links.
     Returns the filtered message text.
     """
-    # Filter out unwanted words
-    if FILTER_CONFIG['words']:
-        for word in FILTER_CONFIG['words']:
-            message_text = re.sub(r'\b' + re.escape(word) + r'\b', '', message_text, flags=re.IGNORECASE)
+    if not message_text:
+        return ''
 
-    # Filter out unwanted usernames (mentions)
-    if FILTER_CONFIG['usernames']:
-        for username in FILTER_CONFIG['usernames']:
-            message_text = message_text.replace(username, '')
+    # Filter embedded links (e.g., in words)
+    if entities:
+        for entity in entities:
+            if hasattr(entity, 'url'):
+                for keyword in FILTER_CONFIG['keywords']:
+                    if keyword.lower() in entity.url.lower():
+                        message_text = re.sub(re.escape(entity.url), '', message_text, flags=re.IGNORECASE)
 
-    # Filter out links (URLs)
-    if FILTER_CONFIG['links']:
-        message_text = re.sub(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', '', message_text)
+    # Filter unwanted keywords from plain text (case-insensitive)
+    if FILTER_CONFIG['keywords']:
+        for keyword in FILTER_CONFIG['keywords']:
+            message_text = re.sub(re.escape(keyword), '', message_text, flags=re.IGNORECASE)
 
-    return message_text
+    return message_text.strip()
+
+def embed_links_in_text(text, entities):
+    """
+    Embed links properly in the message text at the correct places.
+    """
+    if not entities:
+        return text
+
+    # Go through entities and replace URLs in text with the correct link format
+    result_text = text
+    offset_shift = 0  # To track the position shift due to embedded links
+
+    for entity in entities:
+        if hasattr(entity, 'url'):
+            link_text = text[entity.offset:entity.offset + entity.length]
+            formatted_link = f"[{link_text}]({entity.url})"
+            result_text = result_text[:entity.offset + offset_shift] + formatted_link + result_text[entity.offset + entity.length + offset_shift:]
+            offset_shift += len(formatted_link) - len(link_text)  # Update the shift for the next links
+
+    return result_text
+
+def split_message(text):
+    """
+    Split the message into chunks if it exceeds the maximum allowed length.
+    """
+    if len(text) <= MAX_MESSAGE_LENGTH:
+        return [text]
+
+    # Split the text into chunks of MAX_MESSAGE_LENGTH length
+    return [text[i:i+MAX_MESSAGE_LENGTH] for i in range(0, len(text), MAX_MESSAGE_LENGTH)]
+
+def split_caption(caption):
+    """
+    Split the caption into chunks if it exceeds the maximum allowed caption length.
+    """
+    if len(caption) <= MAX_CAPTION_LENGTH:
+        return [caption]
+
+    # Split the caption into chunks of MAX_CAPTION_LENGTH length
+    return [caption[i:i+MAX_CAPTION_LENGTH] for i in range(0, len(caption), MAX_CAPTION_LENGTH)]
 
 # ============================
-# Message Forwarding Section 📬
+# Message Forwarding
 # ============================
 
 async def forward_last_messages(num_messages):
     """
-    This function forwards the last messages from the specified source chats to the target group.
-    It applies the configured filters and handles media files properly.
+    Forward the last messages from the specified source chats to the target group.
     """
+    print("🔄 Bot is forwarding the last messages. Please wait...")
     for channel in source_chats:
         try:
-            # Verify if the channel exists and get the entity
             entity = await client.get_entity(channel)
-
-            # Now, retrieve the last messages
             async for message in client.iter_messages(entity, limit=num_messages):
-                caption = message.message
-
-                # Apply filters to the caption text
-                caption = apply_filters(caption)
-
-                # Add URLs from message entities (if any)
-                if message.entities:
-                    for entity in message.entities:
-                        if hasattr(entity, 'url'):
-                            caption += f" {entity.url}"
-
-                # Truncate long captions
-                if len(caption) > 1024:
-                    caption = caption[:1020] + '...'
-
-                # Send message without media
-                if message.media is None:
-                    await client.send_message(group_id, caption)
-                else:
-                    if isinstance(message.media, (MessageMediaPhoto, MessageMediaDocument)):
-                        await client.send_file(group_id, file=message.media, caption=caption)
-                    else:
-                        await client.send_message(group_id, caption)
-        except ValueError as e:
-            print(f"Error retrieving messages from channel {channel}: {e}")
+                await forward_message(message)
         except Exception as e:
             print(f"Error with channel {channel}: {e}")
 
+    print("✅ Forwarding complete. Bot is now listening for new messages.")
+
+async def forward_message(message):
+    """
+    Forward a single message after applying filters and preserving embedded links.
+    """
+    try:
+        # Filter the message text
+        caption = apply_filters(message.message, message.entities)
+
+        # Embed the links back into the message content at the correct positions
+        caption = embed_links_in_text(caption, message.entities)
+
+        # Split the message if it's too long
+        message_parts = split_message(caption)
+
+        # Handle the media (if any)
+        if message.media is None:
+            sent_message = await client.send_message(group_id, message_parts[0], parse_mode='md')
+            for part in message_parts[1:]:
+                await client.send_message(group_id, part, reply_to=sent_message.id, parse_mode='md')
+        else:
+            if isinstance(message.media, (MessageMediaPhoto, MessageMediaDocument)):
+                # Split the caption if it's too long
+                caption_parts = split_caption(caption)
+
+                # Send the media with the first part of the caption
+                sent_message = await client.send_file(group_id, file=message.media, caption=caption_parts[0], parse_mode='md')
+
+                # Reply with the remaining caption parts, indicating it's a continuation
+                for part in caption_parts[1:]:
+                    await client.send_message(group_id, part, reply_to=sent_message.id, parse_mode='md')
+
+                    # Send a message indicating this is a continuation of the previous post
+                    continuation_message = f"📝 Continuation of the previous post..."
+                    await client.send_message(group_id, continuation_message, reply_to=sent_message.id)
+
+            else:
+                sent_message = await client.send_message(group_id, message_parts[0], parse_mode='md')
+                for part in message_parts[1:]:
+                    await client.send_message(group_id, part, reply_to=sent_message.id, parse_mode='md')
+
+    except Exception as e:
+        print(f"Error forwarding message: {e}")
+
 # ============================
-# Event Handlers Section ⚙️
+# Event Handlers
 # ============================
 
 @client.on(events.NewMessage(chats=source_chats))
 async def handler(event):
     """
-    This event handler listens for new messages in the specified source chats and forwards 
-    them to the target group. Filters are applied to remove unwanted mentions and certain usernames.
+    Handles new messages from the source chats and forwards them after applying filters.
     """
-    message = event.message.message
-
-    # Apply filters to the message text
-    message = apply_filters(message)
-
-    # Add URLs from message entities (if any)
-    if event.message.entities:
-        for entity in event.message.entities:
-            if hasattr(entity, 'url'):
-                message += f" {entity.url}"
-
-    # Prepare the caption
-    caption = message
-
-    # Truncate long captions
-    if len(caption) > 1024:
-        caption = caption[:1020] + '...'
-
-    # Send the message or media to the target group
-    if event.message.media is None:
-        await client.send_message(group_id, caption)
-    else:
-        if isinstance(event.message.media, (MessageMediaPhoto, MessageMediaDocument)):
-            await client.send_file(group_id, file=event.message.media, caption=caption)
-        else:
-            await client.send_message(group_id, caption)
+    await forward_message(event.message)
 
 # ============================
-# Main Execution Section 🚀
+# Main Execution
 # ============================
-
-print("Client is running...")
-client.start(phone_number)
 
 async def main():
     """
-    Starts the message forwarding process and keeps the bot running
+    Start the message forwarding process and allow dynamic addition of filters.
     """
-    # Prompt user for the number of messages to forward (max 10)
-    num_messages = int(input("Enter the number of last messages to forward from each group (max 10): "))
-    num_messages = min(num_messages, 10)  # Ensure it does not exceed 10
+    while True:
+        print("\nOptions:")
+        print("1. Add a filter keyword")
+        print("2. View current filters")
+        print("3. Forward last messages")
+        print("4. Exit")
 
-    # Forward initial messages
-    await forward_last_messages(num_messages)
-    
-    print("Bot is now listening for new messages...")
-    # Keep the bot running
-    await client.run_until_disconnected()
+        choice = input("Choose an option: ")
+
+        if choice == "1":
+            keyword = input("Enter a keyword, URL, or username to filter: ").strip()
+            if keyword:
+                FILTER_CONFIG['keywords'].append(keyword)
+                print(f"Keyword '{keyword}' added to the filter list.")
+
+        elif choice == "2":
+            print("Current Filters:", FILTER_CONFIG['keywords'])
+
+        elif choice == "3":
+            try:
+                num_messages = int(input("Enter the number of last messages to forward from each group (max 10): "))
+                num_messages = min(num_messages, 10)  # Ensure it does not exceed 10
+                print("🔄 Bot is starting...")
+                await forward_last_messages(num_messages)
+                print("✅ Bot is now listening for new messages.")
+            except ValueError:
+                print("Invalid number. Please enter a valid integer.")
+
+        elif choice == "4":
+            print("Exiting...")
+            break
+
+        else:
+            print("Invalid option. Please choose a valid number.")
 
 # Run the main function
+print("Client is running...")
+client.start(phone_number)
 client.loop.run_until_complete(main())
